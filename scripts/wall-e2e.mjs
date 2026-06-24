@@ -31,9 +31,9 @@ page.on('response', async (res) => {
 });
 
 await page.goto(URL, { waitUntil: 'load' });
-await page.waitForSelector('.cell', { timeout: 10000 });
-const initialCells = await page.locator('.cell').count();
-initialCells > 0 ? pass(`wall rendered ${initialCells} card cells`) : fail('no cards rendered');
+await page.waitForSelector('.card', { timeout: 10000 });
+const initialCells = await page.locator('.card').count();
+initialCells > 0 ? pass(`wall rendered ${initialCells} cards`) : fail('no cards rendered');
 
 // Live: create a uniquely-named card and assert it shows up within 2s.
 const app = initializeApp({

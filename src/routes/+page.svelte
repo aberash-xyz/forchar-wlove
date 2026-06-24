@@ -3,4 +3,7 @@
 </main>
 
 <style>
+  main {
+    background: #070a14;
+  }
 </style>
