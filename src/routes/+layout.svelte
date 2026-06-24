@@ -7,5 +7,7 @@
 </script>
 
 <svelte:head><link rel="icon" href={favicon} /></svelte:head>
-<header class="p-2"><span class="font-bold text-2xl">W ❤️</span></header>
+<header class="p-2 w-full absolute top-0">
+  <span class="font-bold text-2xl">W❤️</span>
+</header>
 {@render children()}

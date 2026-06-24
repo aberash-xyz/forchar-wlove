@@ -1,13 +1,20 @@
 import type { Timestamp } from 'firebase/firestore';
 
-export const WISH_TYPES = ['luck', 'wealth', 'love', 'health', 'future'] as const;
-export type WishType = (typeof WISH_TYPES)[number];
+/** Placeholder cover colors — stand-ins until real default covers ship. */
+export const COVER_COLORS = [
+	'#ff7a3c', // ember
+	'#e8a13c', // amber
+	'#ef5a8c', // pink
+	'#46b274', // green
+	'#5b86df', // blue
+	'#3a4a7a' // indigo
+] as const;
 
 /** Public front — `cards/{cardId}`. Readable by anyone. */
 export interface Card {
-	senderName: string; // <= 40 chars
-	wishType: WishType;
-	imagePath: string | null; // Storage path; null = no photo
+	senderName: string; // 1..40 chars
+	coverColor: string; // hex; shown when no image, or behind it
+	imagePath: string | null; // Storage path; null = color-only cover
 	recipient: string;
 	createdAt: Timestamp;
 }

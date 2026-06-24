@@ -39,7 +39,7 @@ const body = `secret note ${cardId}`;
 // 1. client creates card + note (rules validate the creates)
 await setDoc(cardRef, {
 	senderName: 'M0 Test Sender',
-	wishType: 'future',
+	coverColor: '#ff7a3c',
 	imagePath: null,
 	recipient: 'grad',
 	createdAt: serverTimestamp()
