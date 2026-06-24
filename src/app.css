@@ -1,4 +1,33 @@
+/* ── Tartuffo — serif display (notes, headings) ── */
 @font-face {
-  font-family: "Inter";
-  /*src: */
+	font-family: 'Tartuffo';
+	font-style: normal;
+	font-weight: 300;
+	font-display: swap;
+	src: url('/Tartuffo-normal-300-100.woff2') format('woff2');
+}
+@font-face {
+	font-family: 'Tartuffo';
+	font-style: normal;
+	font-weight: 400;
+	font-display: swap;
+	src: url('/Tartuffo-normal-400-100.woff2') format('woff2');
+}
+
+/* ── Inter — variable UI (100–900) ── */
+@font-face {
+	font-family: 'Inter';
+	font-style: normal;
+	font-weight: 100 900;
+	font-display: swap;
+	src: url('/Inter-VariableFont_opsz,wght.woff2') format('woff2');
+}
+
+/* ── Inter Tight — variable, tighter display UI (100–900) ── */
+@font-face {
+	font-family: 'Inter Tight';
+	font-style: normal;
+	font-weight: 100 900;
+	font-display: swap;
+	src: url('/InterTight-VariableFont_wght.woff2') format('woff2');
 }
