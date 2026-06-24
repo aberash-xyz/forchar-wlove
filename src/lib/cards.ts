@@ -21,16 +21,20 @@ export async function createCard(input: NewCard): Promise<string> {
 	const id = cardRef.id;
 
 	let imagePath: string | null = null;
+	let imageUrl: string | null = null;
 	if (input.imageFile) {
 		const jpeg = await compressToJpeg(input.imageFile);
 		imagePath = `cards/${id}.jpg`;
-		await uploadBytes(ref(storage(), imagePath), jpeg, { contentType: 'image/jpeg' });
+		const objRef = ref(storage(), imagePath);
+		await uploadBytes(objRef, jpeg, { contentType: 'image/jpeg' });
+		imageUrl = await getDownloadURL(objRef);
 	}
 
 	await setDoc(cardRef, {
 		senderName: input.senderName.trim().slice(0, 40),
 		coverColor: input.coverColor,
 		imagePath,
+		imageUrl,
 		recipient: input.recipient ?? 'char',
 		createdAt: serverTimestamp()
 	});

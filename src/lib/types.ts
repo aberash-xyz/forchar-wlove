@@ -15,6 +15,7 @@ export interface Card {
 	senderName: string; // 1..40 chars
 	coverColor: string; // hex; shown when no image, or behind it
 	imagePath: string | null; // Storage path; null = color-only cover
+	imageUrl: string | null; // resolved download URL, stored so the wall needs no per-card fetch
 	recipient: string;
 	createdAt: Timestamp;
 }
