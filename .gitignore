@@ -1,0 +1,23 @@
+node_modules/
+.svelte-kit/
+build/
+.output/
+.vercel/
+.netlify/
+
+# env
+.env
+.env.*
+!.env.example
+
+# firebase
+.firebase/
+firebase-debug.log
+firestore-debug.log
+storage-debug.log
+ui-debug.log
+*-debug.log
+
+.DS_Store
+
+firebase-admin.json
