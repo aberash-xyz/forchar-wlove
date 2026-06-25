@@ -5,7 +5,7 @@
 <svelte:head><title>Write a postcard</title></svelte:head>
 
 <main class="page">
-	<h1 class="font-serif text-3xl text-[#f4dca0]">Write a postcard</h1>
+	<h1 class="font-serif text-3xl text-ink">Write a postcard</h1>
 	<p class="subtitle">A photo, a color, a note — sent to the wall.</p>
 	<PostcardBuilder />
 </main>
@@ -18,10 +18,10 @@
 		align-items: center;
 		gap: 0.5rem;
 		padding: 2rem 1rem 3rem;
-		background: #070a14;
+		background: var(--bg);
 	}
 	.subtitle {
-		color: rgba(255, 255, 255, 0.5);
+		color: var(--ink-muted);
 		font-size: 0.9rem;
 		margin-bottom: 1.5rem;
 	}

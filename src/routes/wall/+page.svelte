@@ -209,7 +209,7 @@
 		height: 100dvh;
 		width: 100%;
 		overflow: hidden;
-		background: radial-gradient(circle at 50% 45%, #0c1222 0%, #070a14 70%);
+		background: radial-gradient(circle at 50% 45%, var(--bg-elev) 0%, var(--bg) 70%);
 		cursor: grab;
 		touch-action: none;
 	}
@@ -254,7 +254,7 @@
 		inset: 0;
 		display: grid;
 		place-items: center;
-		color: rgba(244, 220, 160, 0.6);
+		color: var(--ink-muted);
 		font-size: 1.4rem;
 		z-index: 1;
 	}

@@ -57,8 +57,8 @@
 
 {#if done}
 	<div class="confirm">
-		<p class="font-serif text-3xl text-[#f4dca0]">Sent to the sky. ✦</p>
-		<p class="mt-2 text-sm text-white/60">Your card is on the wall.</p>
+		<p class="font-serif text-3xl text-ink">Sent to the sky. ✦</p>
+		<p class="mt-2 text-sm text-ink-muted">Your card is on the wall.</p>
 		<button class="btn mt-6" onclick={reset}>Send another</button>
 	</div>
 {:else}
@@ -306,8 +306,8 @@
 		flex: 1;
 		padding: 0.7rem 1rem;
 		border-radius: 0.6rem;
-		background: #e8a13c;
-		color: #070a14;
+		background: var(--accent);
+		color: var(--accent-ink);
 		font-weight: 600;
 		cursor: pointer;
 		transition: opacity 0.15s;
@@ -318,15 +318,15 @@
 	}
 	.btn.ghost {
 		background: transparent;
-		color: #f4dca0;
-		border: 1px solid rgba(244, 220, 160, 0.4);
+		color: var(--ink);
+		border: 1px solid color-mix(in srgb, var(--ink) 40%, transparent);
 	}
 	.err {
-		color: #ff7a3c;
+		color: var(--ember);
 		font-size: 0.85rem;
 	}
 	.hint {
-		color: rgba(255, 255, 255, 0.45);
+		color: var(--ink-muted);
 		font-size: 0.8rem;
 	}
 

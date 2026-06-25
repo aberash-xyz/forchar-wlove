@@ -4,6 +4,21 @@
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<meta name="text-scale" content="scale" />
+		<script>
+			// Set the theme before paint (no flash). Priority: ?theme= param, then
+			// saved preference, else dark. A ?theme= value also persists.
+			(function () {
+				try {
+					var p = new URLSearchParams(location.search).get('theme');
+					var t = p || localStorage.getItem('theme') || 'dark';
+					if (t !== 'light' && t !== 'dark') t = 'dark';
+					if (p) localStorage.setItem('theme', t);
+					document.documentElement.dataset.theme = t;
+				} catch (e) {
+					document.documentElement.dataset.theme = 'dark';
+				}
+			})();
+		</script>
 		%sveltekit.head%
 	</head>
 	<body data-sveltekit-preload-data="hover">
