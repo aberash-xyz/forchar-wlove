@@ -6,6 +6,7 @@
   import Postcard from "$lib/components/Postcard.svelte";
   import NoteModal from "$lib/components/NoteModal.svelte";
   import QrInvite from "$lib/components/QrInvite.svelte";
+  import OrbitRing from "$lib/components/OrbitRing.svelte";
   import { postUnlock, getNotes } from "$lib/notes";
   import { filterCards, isSearchActive } from "$lib/search";
   import {
@@ -179,8 +180,10 @@
 >
   {#if loaded && cards.length === 0}
     <div class="empty">
-      <p class="empty-title font-serif">No cards yet.</p>
-      <QrInvite size={240} caption="Scan to send the first postcard" />
+      <OrbitRing text="send char some love" diameter={460}>
+        <QrInvite size={190} caption="" />
+      </OrbitRing>
+      <p class="cta font-sans-tight">scan to send the first postcard</p>
     </div>
   {/if}
 
@@ -346,8 +349,9 @@
     gap: 1.5rem;
     z-index: 1;
   }
-  .empty-title {
+  .empty .cta {
     color: var(--ink-muted);
-    font-size: 1.6rem;
+    font-size: 1.05rem;
+    letter-spacing: 0.02em;
   }
 </style>
