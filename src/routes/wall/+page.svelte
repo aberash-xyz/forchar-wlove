@@ -7,14 +7,16 @@
 	import NoteModal from '$lib/components/NoteModal.svelte';
 	import { postUnlock, getNotes } from '$lib/notes';
 	import { filterCards, isSearchActive } from '$lib/search';
-
-	type WallCard = {
-		id: string;
-		senderName: string;
-		coverColor: string;
-		imageUrl: string | null;
-		ms: number;
-	};
+	import {
+		type WallCard,
+		toWallCard,
+		byOldestFirst,
+		cardMetrics,
+		computeLayout,
+		fieldExtent,
+		hashUnit
+	} from '$lib/wall/layout';
+	import { isTap, driftStep, centerStep } from '$lib/wall/camera';
 
 	const tv = $derived(page.url.searchParams.has('tv'));
 
@@ -31,7 +33,7 @@
 	let downY = 0;
 
 	function onCardClick(e: MouseEvent, card: WallCard) {
-		if (Math.hypot(e.clientX - downX, e.clientY - downY) < 8) selected = card;
+		if (isTap(e, downX, downY)) selected = card;
 	}
 
 	async function handleUnlock(code: string) {
@@ -52,73 +54,19 @@
 	const searchActive = $derived(isSearchActive(search));
 	const displayCards = $derived(filterCards(cards, search, { notes, unlocked }));
 
+	// Geometry + layout come from $lib/wall/layout (pure). Card size tracks the
+	// viewport; positions re-flow center-out for whatever set is shown.
 	let vw = $state(0);
-
-	// Grid geometry. Card size is derived from the viewport to show ~4 across
-	// (up to ~5 on very wide screens); it stays fixed while panning and only
-	// recomputes when the screen size changes. Gaps are wide enough that the
-	// per-card rotation never makes neighbours overlap.
-	const GAP = 46;
-	const SPACING_X = $derived(Math.min(Math.max((vw || 1120) / 4, 230), 480));
-	const CARD_W = $derived(SPACING_X - GAP);
-	const CARD_H = $derived(CARD_W * 1.5); // 4:6
-	const SPACING_Y = $derived(CARD_H + GAP);
-	const ROT_MAX = 6; // deg
-	const JITTER = 12; // px, small enough to never overlap within the gap
-
-	function hashUnit(s: string, salt: number): number {
-		let h = (2166136261 ^ salt) >>> 0;
-		for (let i = 0; i < s.length; i++) h = Math.imul(h ^ s.charCodeAt(i), 16777619);
-		return (h >>> 0) / 4294967295;
-	}
-
-	// Square spiral: index 0 = center, ringing outward.
-	function spiralCells(n: number): { gx: number; gy: number }[] {
-		const out: { gx: number; gy: number }[] = [];
-		let x = 0,
-			y = 0,
-			dx = 0,
-			dy = -1;
-		for (let i = 0; i < n; i++) {
-			out.push({ gx: x, gy: y });
-			if (x === y || (x < 0 && x === -y) || (x > 0 && x === 1 - y)) {
-				const t = dx;
-				dx = -dy;
-				dy = t;
-			}
-			x += dx;
-			y += dy;
-		}
-		return out;
-	}
-
-	type Placed = {
-		card: WallCard;
-		x: number;
-		y: number;
-		rot: number;
-		delay: number;
-		newest: boolean;
-	};
-
-	const layout = $derived.by<Placed[]>(() => {
-		const cells = spiralCells(displayCards.length);
-		return displayCards.map((card, i) => {
-			const { gx, gy } = cells[i];
-			return {
-				card,
-				x: gx * SPACING_X + (hashUnit(card.id, 1) - 0.5) * 2 * JITTER,
-				y: gy * SPACING_Y + (hashUnit(card.id, 2) - 0.5) * 2 * JITTER,
-				rot: (hashUnit(card.id, 3) - 0.5) * 2 * ROT_MAX,
-				delay: firstBatch.has(card.id) ? Math.min(i * 14, 650) : 0,
-				newest: !searchActive && i === displayCards.length - 1
-			};
-		});
-	});
-
-	// Populated extent — bounds the ambient drift so it roams over cards.
-	const extentX = $derived(layout.reduce((m, l) => Math.max(m, Math.abs(l.x)), 0) + CARD_W);
-	const extentY = $derived(layout.reduce((m, l) => Math.max(m, Math.abs(l.y)), 0) + CARD_H);
+	const metrics = $derived(cardMetrics(vw));
+	const layout = $derived(
+		computeLayout(displayCards, {
+			spacingX: metrics.spacingX,
+			spacingY: metrics.spacingY,
+			firstBatch,
+			searchActive
+		})
+	);
+	const extent = $derived(fieldExtent(layout, metrics.cardW, metrics.cardH));
 
 	// Pop-in: cards mount tiny+transparent at their own spot, then settle.
 	let placed = $state(new Set<string>());
@@ -144,17 +92,7 @@
 	onMount(() => {
 		const q = query(collection(db(), 'cards'));
 		const unsub = onSnapshot(q, (snap) => {
-			const next = snap.docs.map((d) => {
-				const data = d.data();
-				return {
-					id: d.id,
-					senderName: data.senderName,
-					coverColor: data.coverColor,
-					imageUrl: data.imageUrl ?? null,
-					ms: data.createdAt?.toMillis?.() ?? Number.POSITIVE_INFINITY
-				};
-			});
-			next.sort((a, b) => a.ms - b.ms); // oldest -> center, newest -> frontier
+			const next = snap.docs.map((d) => toWallCard(d.id, d.data())).sort(byOldestFirst);
 			if (!loaded) firstBatch = new Set(next.map((c) => c.id));
 			cards = next;
 			loaded = true;
@@ -195,25 +133,14 @@
 				const dt = Math.min(48, t - lastT);
 				lastT = t;
 				if (pzInstance && searchActive) {
-					// Ease the camera back to center so matches (which re-flow to the
-					// middle) come into view — robust against any lingering momentum.
-					const tr = pzInstance.getTransform();
-					if (Math.abs(tr.x) > 0.5 || Math.abs(tr.y) > 0.5) {
-						const k = Math.min(1, 0.012 * dt);
-						pzInstance.moveBy(-tr.x * k, -tr.y * k);
-					}
+					// Ease back to center so matches (which re-flow to the middle) show.
+					const step = centerStep(pzInstance.getTransform(), dt);
+					if (step) pzInstance.moveBy(step.dx, step.dy);
 				} else if (pzInstance && !selected && t > pausedUntil) {
 					// Ambient drift while idle (no modal, no search).
-					angle += 0.00016 * dt;
-					const speed = 0.026; // px/ms ~ 26px/s
-					let dx = Math.cos(angle) * speed * dt;
-					let dy = Math.sin(angle) * speed * dt;
-					const tr = pzInstance.getTransform();
-					const lx = extentX * 0.7;
-					const ly = extentY * 0.7;
-					if (Math.abs(tr.x) > lx) dx -= Math.sign(tr.x) * (Math.abs(tr.x) - lx) * 0.02;
-					if (Math.abs(tr.y) > ly) dy -= Math.sign(tr.y) * (Math.abs(tr.y) - ly) * 0.02;
-					pzInstance.moveBy(dx, dy, false);
+					const step = driftStep(angle, dt, pzInstance.getTransform(), extent.extentX, extent.extentY);
+					angle = step.angle;
+					pzInstance.moveBy(step.dx, step.dy, false);
 				}
 				raf = requestAnimationFrame(frame);
 			};
@@ -275,7 +202,7 @@
 			<div
 				class="card"
 				class:newest={l.newest}
-				style:width="{CARD_W}px"
+				style:width="{metrics.cardW}px"
 				style:opacity={on ? 1 : 0}
 				style:transition-delay="{l.delay}ms"
 				style:transform={on
