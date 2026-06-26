@@ -16,7 +16,7 @@
 		fieldExtent,
 		hashUnit
 	} from '$lib/wall/layout';
-	import { isTap, driftStep, centerStep } from '$lib/wall/camera';
+	import { isTap, tourTarget, tourStep, centerStep } from '$lib/wall/camera';
 
 	const tv = $derived(page.url.searchParams.has('tv'));
 
@@ -112,7 +112,7 @@
 		let raf = 0;
 		let lastT = 0;
 		let pausedUntil = 0;
-		let angle = hashUnit('seed', 7) * Math.PI * 2;
+		let phase = hashUnit('seed', 7) * 1e6; // start the tour at a varied point
 		let disposed = false;
 
 		(async () => {
@@ -137,9 +137,12 @@
 					const step = centerStep(pzInstance.getTransform(), dt);
 					if (step) pzInstance.moveBy(step.dx, step.dy);
 				} else if (pzInstance && !selected && t > pausedUntil) {
-					// Ambient drift while idle (no modal, no search).
-					const step = driftStep(angle, dt, pzInstance.getTransform(), extent.extentX, extent.extentY);
-					angle = step.angle;
+					// Ambient gallery tour while idle: ease toward a slow Lissajous
+					// target that roams the whole field (edges + center), not a
+					// center-biased wander.
+					phase += dt;
+					const target = tourTarget(phase, extent.extentX, extent.extentY);
+					const step = tourStep(pzInstance.getTransform(), target, dt);
 					pzInstance.moveBy(step.dx, step.dy, false);
 				}
 				raf = requestAnimationFrame(frame);

@@ -15,26 +15,33 @@ export function isTap(e: { clientX: number; clientY: number }, downX: number, do
 	return Math.hypot(e.clientX - downX, e.clientY - downY) < threshold;
 }
 
-/**
- * One ambient-drift step: a gently curving wander, softly bounded to the
- * populated field. Returns the move plus the advanced angle.
- */
-export function driftStep(
-	angle: number,
-	dt: number,
-	transform: Vec,
+// --- Ambient "gallery tour" -------------------------------------------------
+// A slow Lissajous path sized to the whole field. The irrational frequency
+// ratio means the curve never exactly repeats and is dense in the bounding
+// box, so the camera roams edges, corners and center evenly — no center bias.
+
+/** How far toward the rim the tour roams, as a fraction of the field extent. */
+export const TOUR_COVER = 0.85;
+/** Base traversal speed (rad/ms). Higher = the camera moves around faster. */
+export const TOUR_SPEED = 0.00009;
+
+/** Target world-center the camera should be over at the given phase (ms). */
+export function tourTarget(
+	phase: number,
 	extentX: number,
 	extentY: number,
-	speed = 0.026 // px/ms ~ 26px/s
-): Move & { angle: number } {
-	const next = angle + 0.00016 * dt;
-	let dx = Math.cos(next) * speed * dt;
-	let dy = Math.sin(next) * speed * dt;
-	const lx = extentX * 0.7;
-	const ly = extentY * 0.7;
-	if (Math.abs(transform.x) > lx) dx -= Math.sign(transform.x) * (Math.abs(transform.x) - lx) * 0.02;
-	if (Math.abs(transform.y) > ly) dy -= Math.sign(transform.y) * (Math.abs(transform.y) - ly) * 0.02;
-	return { dx, dy, angle: next };
+	cover = TOUR_COVER
+): Vec {
+	return {
+		x: extentX * cover * Math.sin(phase * TOUR_SPEED),
+		y: extentY * cover * Math.sin(phase * TOUR_SPEED * Math.SQRT2) // √2 ratio -> non-repeating
+	};
+}
+
+/** Ease the camera toward the tour target; also gives a smooth rejoin after a drag. */
+export function tourStep(transform: Vec, target: Vec, dt: number): Move {
+	const k = Math.min(1, 0.0018 * dt);
+	return { dx: (target.x - transform.x) * k, dy: (target.y - transform.y) * k };
 }
 
 /**
