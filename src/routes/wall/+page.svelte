@@ -5,6 +5,7 @@
 	import { db } from '$lib/firebase';
 	import Postcard from '$lib/components/Postcard.svelte';
 	import NoteModal from '$lib/components/NoteModal.svelte';
+	import QrInvite from '$lib/components/QrInvite.svelte';
 	import { postUnlock, getNotes } from '$lib/notes';
 	import { filterCards, isSearchActive } from '$lib/search';
 	import {
@@ -173,7 +174,10 @@
 	}}
 >
 	{#if loaded && cards.length === 0}
-		<p class="empty font-serif">No cards yet. Be the first to send one.</p>
+		<div class="empty">
+			<p class="empty-title font-serif">No cards yet.</p>
+			<QrInvite size={240} caption="Scan to send the first postcard" />
+		</div>
 	{/if}
 
 	{#if !tv}
@@ -318,10 +322,15 @@
 	.empty {
 		position: absolute;
 		inset: 0;
-		display: grid;
-		place-items: center;
-		color: var(--ink-muted);
-		font-size: 1.4rem;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		gap: 1.5rem;
 		z-index: 1;
+	}
+	.empty-title {
+		color: var(--ink-muted);
+		font-size: 1.6rem;
 	}
 </style>
