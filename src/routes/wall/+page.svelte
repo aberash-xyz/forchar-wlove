@@ -4,6 +4,8 @@
 	import { page } from '$app/state';
 	import { db } from '$lib/firebase';
 	import Postcard from '$lib/components/Postcard.svelte';
+	import NoteModal from '$lib/components/NoteModal.svelte';
+	import { postUnlock, getNotes } from '$lib/notes';
 
 	type WallCard = {
 		id: string;
@@ -18,6 +20,30 @@
 	let cards = $state<WallCard[]>([]);
 	let loaded = $state(false);
 	let firstBatch = $state(new Set<string>());
+
+	// Note gate
+	let selected = $state<WallCard | null>(null);
+	let unlocked = $state(false);
+	let notes = $state<Record<string, string>>({});
+	// distinguish a tap from a pan (panzoom owns dragging)
+	let downX = 0;
+	let downY = 0;
+
+	function onCardClick(e: MouseEvent, card: WallCard) {
+		if (Math.hypot(e.clientX - downX, e.clientY - downY) < 8) selected = card;
+	}
+
+	async function handleUnlock(code: string) {
+		const res = await postUnlock(code);
+		if (res.ok) {
+			const n = await getNotes();
+			if (n) {
+				notes = n;
+				unlocked = true;
+			}
+		}
+		return res;
+	}
 
 	let vw = $state(0);
 
@@ -125,6 +151,15 @@
 			loaded = true;
 		});
 
+		// If a valid unlock cookie is already present (returning visitor), load the
+		// notes; otherwise this 401s and no bodies are delivered.
+		getNotes().then((n) => {
+			if (n) {
+				notes = n;
+				unlocked = true;
+			}
+		});
+
 		// panzoom handles drag + inertial momentum (and touch). We disable zoom and
 		// drive a gentle ambient drift through its API while the user is idle.
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -152,7 +187,7 @@
 				if (!lastT) lastT = t;
 				const dt = Math.min(48, t - lastT);
 				lastT = t;
-				if (pz && t > pausedUntil) {
+				if (pz && !selected && t > pausedUntil) {
 					angle += 0.00016 * dt;
 					const speed = 0.026; // px/ms ~ 26px/s
 					let dx = Math.cos(angle) * speed * dt;
@@ -180,13 +215,24 @@
 
 <svelte:head><title>The wall</title></svelte:head>
 
-<div class="wall" class:tv bind:clientWidth={vw}>
+<div
+	class="wall"
+	class:tv
+	role="application"
+	aria-label="Postcard wall — drag to pan, tap a card to read"
+	bind:clientWidth={vw}
+	onpointerdown={(e) => {
+		downX = e.clientX;
+		downY = e.clientY;
+	}}
+>
 	{#if loaded && cards.length === 0}
 		<p class="empty font-serif">No cards yet. Be the first to send one.</p>
 	{/if}
 	<div class="camera" bind:this={cameraEl}>
 		{#each layout as l (l.card.id)}
 			{@const on = placed.has(l.card.id)}
+			<!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
 			<div
 				class="card"
 				class:newest={l.newest}
@@ -196,12 +242,23 @@
 				style:transform={on
 					? `translate(-50%,-50%) translate(${l.x}px,${l.y}px) rotate(${l.rot}deg)`
 					: `translate(-50%,-50%) translate(${l.x}px,${l.y}px) scale(0.2)`}
+				onclick={(e) => onCardClick(e, l.card)}
 			>
 				<Postcard color={l.card.coverColor} name={l.card.senderName} imageUrl={l.card.imageUrl} />
 			</div>
 		{/each}
 	</div>
 </div>
+
+{#if selected}
+	<NoteModal
+		card={selected}
+		body={notes[selected.id]}
+		{unlocked}
+		onClose={() => (selected = null)}
+		onUnlock={handleUnlock}
+	/>
+{/if}
 
 <style>
 	.wall {
