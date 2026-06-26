@@ -1,8 +1,12 @@
 <script lang="ts">
   import PostcardBuilder from "$lib/components/PostcardBuilder.svelte";
+  import Seo from "$lib/components/Seo.svelte";
 </script>
 
-<svelte:head><title>Write a postcard</title></svelte:head>
+<Seo
+  title="Write a postcard"
+  description="A photo, a colour, a note — write Char a postcard for her send-off."
+/>
 
 <main class="page">
   <h1 class="font-serif text-3xl text-ink">Write a postcard</h1>

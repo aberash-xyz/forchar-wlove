@@ -7,6 +7,7 @@
   import NoteModal from "$lib/components/NoteModal.svelte";
   import QrInvite from "$lib/components/QrInvite.svelte";
   import OrbitRing from "$lib/components/OrbitRing.svelte";
+  import Seo from "$lib/components/Seo.svelte";
   import { postUnlock, getNotes } from "$lib/notes";
   import { filterCards, isSearchActive } from "$lib/search";
   import {
@@ -165,7 +166,10 @@
   });
 </script>
 
-<svelte:head><title>The wall</title></svelte:head>
+<Seo
+  title="A Farewell Sky — the wall"
+  description="A living wall of farewell postcards for Char. Scan to add yours."
+/>
 
 <div
   class="wall"
