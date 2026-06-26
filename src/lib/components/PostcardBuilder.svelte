@@ -163,7 +163,10 @@
 		aspect-ratio: 4 / 6; /* real-postcard portrait */
 		-webkit-transform-style: preserve-3d;
 		transform-style: preserve-3d;
-		transition: transform 0.6s cubic-bezier(0.4, 0.1, 0.2, 1);
+		/* Symmetric ease (easeInOutCubic): the card is exactly edge-on (90°) at
+		   the 0.3s midpoint, so the face swap below lands at zero width and is
+		   invisible. An asymmetric curve here desyncs them and causes the pop. */
+		transition: transform 0.6s cubic-bezier(0.65, 0, 0.35, 1);
 	}
 	.card.flipped {
 		-webkit-transform: rotateY(180deg);
