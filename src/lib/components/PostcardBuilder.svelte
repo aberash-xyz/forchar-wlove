@@ -10,6 +10,8 @@
 	let imageUrl = $state<string | null>(null);
 
 	let flipped = $state(false);
+	let flipping = $state(false); // true during the 0.6s turn — hides floaty form controls
+	let flipTimer: ReturnType<typeof setTimeout>;
 	let submitting = $state(false);
 	let flying = $state(false);
 	let done = $state(false);
@@ -50,6 +52,8 @@
 		imageFile = null;
 		imageUrl = null;
 		flipped = false;
+		flipping = false;
+		clearTimeout(flipTimer);
 		flying = false;
 		done = false;
 		error = null;
@@ -65,7 +69,7 @@
 {:else}
 	<div class="builder">
 		<div class="stage" class:flying>
-			<div class="card" class:flipped>
+			<div class="card" class:flipped class:flipping>
 				<!-- FRONT: cover + photo + ❤️-name -->
 				<div class="face front" style:background-color={color}>
 					{#if imageUrl}
@@ -118,7 +122,16 @@
 		</div>
 
 		<div class="controls">
-			<button type="button" class="btn ghost" onclick={() => (flipped = !flipped)}>
+			<button
+				type="button"
+				class="btn ghost"
+				onclick={() => {
+					flipped = !flipped;
+					flipping = true;
+					clearTimeout(flipTimer);
+					flipTimer = setTimeout(() => (flipping = false), 600);
+				}}
+			>
 				{flipped ? 'See front' : 'Write note ✎'}
 			</button>
 			<button type="button" class="btn" disabled={!canSubmit} onclick={submit}>
@@ -209,6 +222,24 @@
 	}
 	.card.flipped .back {
 		visibility: visible;
+	}
+
+	/* Native form controls don't rotate with the 3D card (browsers composite
+	   them flat), so they float over the turning card during the first half of
+	   a flip. Fade all interactive content out for the whole turn — only the
+	   photo/colour background rotates — then back in once the card settles. */
+	.photo-btn,
+	.front-bottom,
+	.note,
+	.count {
+		transition: opacity 0.18s ease;
+	}
+	.card.flipping .photo-btn,
+	.card.flipping .front-bottom,
+	.card.flipping .note,
+	.card.flipping .count {
+		opacity: 0;
+		pointer-events: none;
 	}
 
 	.cover {
