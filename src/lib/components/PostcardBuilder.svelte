@@ -201,7 +201,7 @@
 	.back {
 		-webkit-transform: rotateY(180deg);
 		transform: rotateY(180deg);
-		background: #11182b;
+		background: var(--bg-elev);
 		padding: 1rem;
 		display: flex;
 		flex-direction: column;
@@ -319,17 +319,17 @@
 		background: transparent;
 		border: none;
 		outline: none;
-		color: #f4dca0;
+		color: var(--ink);
 		font-size: 1.2rem;
 		line-height: 1.5;
 	}
 	.note::placeholder {
-		color: rgba(244, 220, 160, 0.4);
+		color: var(--ink-muted);
 	}
 	.count {
 		text-align: right;
 		font-size: 0.75rem;
-		color: rgba(255, 255, 255, 0.45);
+		color: var(--ink-muted);
 	}
 
 	.controls {
