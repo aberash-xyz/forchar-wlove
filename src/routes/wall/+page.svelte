@@ -185,6 +185,11 @@
       </OrbitRing>
       <p class="cta font-sans-tight">scan to send the first postcard</p>
     </div>
+  {:else if loaded}
+    <!-- persistent corner invite so TV viewers can scan to add a postcard -->
+    <div class="corner-invite">
+      <QrInvite size={120} caption="scan to add yours" />
+    </div>
   {/if}
 
   {#if !tv}
@@ -353,5 +358,16 @@
     color: var(--ink-muted);
     font-size: 1.05rem;
     letter-spacing: 0.02em;
+  }
+  .corner-invite {
+    position: absolute;
+    bottom: 1.5rem;
+    left: 1.5rem;
+    z-index: 5;
+    pointer-events: none; /* never intercept pans/taps on the wall */
+  }
+  .corner-invite :global(.caption) {
+    font-size: 0.8rem;
+    margin-top: 0.5rem;
   }
 </style>
