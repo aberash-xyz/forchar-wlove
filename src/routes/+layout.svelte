@@ -3,6 +3,7 @@
   import "../app.css";
   import { onMount } from "svelte";
   import { toggleTheme, getTheme, type Theme } from "$lib/theme";
+  import Heart from "$lib/components/Heart.svelte";
   import favicon from "$lib/assets/favicon.svg";
 
   let { children } = $props();
@@ -16,7 +17,7 @@
 
 <svelte:head><link rel="icon" href={favicon} /></svelte:head>
 <header class="pt-2 px-4 w-full absolute top-0 mix-blend-difference">
-  <span class="font-bold text-2xl">W❤️</span>
+  <span class="font-bold text-2xl">W<Heart /></span>
 </header>
 <button
   class="theme-toggle"
