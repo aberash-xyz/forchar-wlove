@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { COVER_COLORS } from '$lib/types';
 	import { createCard } from '$lib/cards';
+	import Heart from './Heart.svelte';
 
 	let name = $state('');
 	let note = $state('');
@@ -90,7 +91,7 @@
 							{/each}
 						</div>
 						<div class="nameline">
-							<span aria-hidden="true">❤️</span>
+							<Heart />
 							<input
 								class="name-input font-serif"
 								bind:value={name}

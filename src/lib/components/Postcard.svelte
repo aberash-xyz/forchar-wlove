@@ -1,6 +1,8 @@
 <script lang="ts">
   // Presentational card front: 4:6 postcard, image (object-cover) or color
   // placeholder, with a ❤️-name strip along the bottom.
+  import Heart from "./Heart.svelte";
+
   let {
     color,
     name,
@@ -13,7 +15,7 @@
     <img class="cover" src={imageUrl} alt="" />
   {/if}
   <div class="namebar">
-    <span class="font-serif">❤️ {name || "someone"}</span>
+    <span class="font-serif"><Heart /> {name || "someone"}</span>
   </div>
 </div>
 
