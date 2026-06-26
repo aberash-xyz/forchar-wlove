@@ -1,49 +1,50 @@
-@import 'tailwindcss';
+@import "tailwindcss";
 @plugin '@tailwindcss/typography';
 
 @theme {
-	--font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
-	--font-serif: 'Tartuffo', ui-serif, Georgia, serif;
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Tartuffo", ui-serif, Georgia, serif;
+  --font-sans-tight: "Inter Tight", ui-serif, Georgia, serif;
 }
 
 /* Semantic theme tokens. `inline` makes the Tailwind utilities reference the
    vars live, so bg-surface / text-ink etc. switch with [data-theme]. */
 @theme inline {
-	--color-surface: var(--bg);
-	--color-elevated: var(--bg-elev);
-	--color-ink: var(--ink);
-	--color-ink-muted: var(--ink-muted);
-	--color-accent: var(--accent);
-	--color-accent-ink: var(--accent-ink);
-	--color-ember: var(--ember);
+  --color-surface: var(--bg);
+  --color-elevated: var(--bg-elev);
+  --color-ink: var(--ink);
+  --color-ink-muted: var(--ink-muted);
+  --color-accent: var(--accent);
+  --color-accent-ink: var(--accent-ink);
+  --color-ember: var(--ember);
 }
 
 /* Dark is the default. */
 :root {
-	--bg: #070a14;
-	--bg-elev: #0c1222;
-	--ink: #f4dca0;
-	--ink-muted: rgba(244, 220, 160, 0.5);
-	--accent: #e8a13c;
-	--accent-ink: #070a14;
-	--ember: #ff7a3c;
-	color-scheme: dark;
+  --bg: #070a14;
+  --bg-elev: #0c1222;
+  --ink: #f4dca0;
+  --ink-muted: rgba(244, 220, 160, 0.5);
+  --accent: #e8a13c;
+  --accent-ink: #070a14;
+  --ember: #ff7a3c;
+  color-scheme: dark;
 }
 
 /* Opt-in light theme — e.g. a TV where the dark field bands. */
-:root[data-theme='light'] {
-	--bg: #f3ead6;
-	--bg-elev: #fffdf6;
-	--ink: #2a2114;
-	--ink-muted: rgba(42, 33, 20, 0.55);
-	--accent: #c07d1c;
-	--accent-ink: #fffdf6;
-	--ember: #c8471a;
-	color-scheme: light;
+:root[data-theme="light"] {
+  --bg: #f3ead6;
+  --bg-elev: #fffdf6;
+  --ink: #2a2114;
+  --ink-muted: rgba(42, 33, 20, 0.55);
+  --accent: #c07d1c;
+  --accent-ink: #fffdf6;
+  --ember: #c8471a;
+  color-scheme: light;
 }
 
 html,
 body {
-	background: var(--bg);
-	color: var(--ink);
+  background: var(--bg);
+  color: var(--ink);
 }
