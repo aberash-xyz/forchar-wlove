@@ -54,9 +54,9 @@
   }
   .frame {
     background: #fff;
-    border-radius: 0.85rem;
-    padding: 0.55rem;
-    box-shadow: 0 12px 34px -14px rgba(0, 0, 0, 0.55);
+    border-radius: 2.85rem;
+    padding: 1.55rem;
+    box-shadow: 0 12px 34px -14px rgba(0, 0, 0, 0.35);
   }
   .frame :global(svg) {
     display: block;
@@ -64,7 +64,7 @@
     height: 100%;
   }
   .caption {
-    color: var(--ink-muted);
+    color: var(--ink);
     font-size: 0.95rem;
     text-align: center;
   }
